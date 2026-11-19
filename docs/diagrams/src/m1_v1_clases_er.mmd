@@ -1,0 +1,41 @@
+classDiagram
+    class SyncMetadata {
+        +str id
+        +int version
+        +datetime updated_at
+        +datetime deleted_at
+        +str client_mutation_id
+    }
+    class Variedad {
+        +str nombre
+        +str quimiotipo
+        +int dias_vegetativo_est
+        +int dias_floracion_est
+    }
+    class Ubicacion {
+        +str nombre
+        +TipoUbicacion tipo
+        +int capacidad_unidades
+    }
+    class Propagacion {
+        +str codigo_lote
+        +date fecha_siembra
+        +str variedad_id
+        +TipoPropagacion tipo_propagacion
+        +TipoIncorporacion tipo_incorporacion
+        +str origen_extraccion_id
+        +str proveedor
+        +int cantidad_material
+        +int cantidad_plantas_madre
+        +int bajas_propagacion
+        +EstadoLote estado_lote
+    }
+    class RulesPropagacion {
+        <<domain service>>
+        +calcular_saldo_propagacion() int
+        +validar_propagacion() EstadoLote
+    }
+    SyncMetadata <|-- Propagacion
+    Variedad "1" --> "0..*" Propagacion : clasifica
+    Ubicacion "1" --> "0..*" Propagacion : alberga
+    Propagacion ..> RulesPropagacion : valida

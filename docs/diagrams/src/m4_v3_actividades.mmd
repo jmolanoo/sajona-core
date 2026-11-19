@@ -1,0 +1,10 @@
+flowchart TD
+    INI(["Inicio: Acceso al Dashboard Operativo"]) --> F1["Aplicar filtros locales (Fechas, Variedad, Tipo Prop.)"]
+    F1 --> R1["Leer snapshot vivo de las 7 tablas en IndexedDB"]
+    R1 --> K1["Calcular KPIs de Propagación (lotes, sembrado, saldo)"]
+    R1 --> K2["Calcular KPIs de Bolsa (supervivencia %, vivas netas, alertas >20%)"]
+    R1 --> K3["Calcular KPIs de Planta Madre (activas, esquejes, semillas, hijos)"]
+    K1 & K2 & K3 --> G1["Renderizar Embudo SVG + Barras de Supervivencia + Trazabilidad"]
+    G1 --> D1{"¿Usuario selecciona 'Ver Traza'\no Exportar?"}
+    D1 -- "Ver Traza" --> TR["Abrir LotTraceModal 360° (Padre->Bolsa->Madres->Hijos)"]
+    D1 -- "Exportar" --> EX["Generar archivo Excel/TXT/PDF 100% local sin red"]

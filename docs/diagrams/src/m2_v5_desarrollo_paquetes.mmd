@@ -1,0 +1,18 @@
+flowchart TB
+    subgraph FE["frontend/src (Módulo 2)"]
+        M2_PG["pages/PlantaMadrePage.tsx"]
+        M2_DM["domain/calculations.ts (calcularTotalesExtraccion)"]
+        M2_DB["db/schema.ts (3 tablas madre) + syncEngine.ts"]
+        M2_PG --> M2_DM & M2_DB
+    end
+    subgraph BE["backend/src/sajona_core (Módulo 2)"]
+        B2_RT["presentation/routers.py"]
+        B2_AP["application/produccion_service.py\n(_rules_extraccion_madre, _derive_child_lot_if_needed)"]
+        B2_DT["application/dto.py\n(LotePlantaMadre, UnidadPlantaMadre, ExtraccionMadre)"]
+        B2_DO["domain/rules.py (validar_extraccion_madre)"]
+        B2_IN["infrastructure/models.py\n(lotes_planta_madre, unidades_planta_madre, extracciones_madre)"]
+        B2_RT --> B2_AP --> B2_DT & B2_DO
+        B2_RT --> B2_IN
+        B2_IN --> B2_DO
+    end
+    M2_DB <-- "/api/v1/entities/* + /sync" --> B2_RT

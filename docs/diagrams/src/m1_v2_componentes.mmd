@@ -1,0 +1,21 @@
+flowchart TB
+    subgraph FE["Cliente PWA Offline-First"]
+        direction TB
+        UI["PropagacionPage.tsx (Tarjetas, Filtros, Modal)"]
+        CALC["calculations.ts (calcularSaldoPropagacion)"]
+        EXP["exporters.ts (Excel, TXT, PDF offline)"]
+        ENG["syncEngine.ts (queueLocalMutation)"]
+        IDB[("Dexie IndexedDB: propagacion + outbox")]
+        UI --> CALC & EXP & ENG
+        ENG --> IDB
+    end
+    subgraph BE["Servidor Backend FastAPI"]
+        direction TB
+        RTR["routers.py (entity_router + sync_router)"]
+        SVC["ProduccionService (_rules_propagacion)"]
+        DOM["domain/rules.py (validar_propagacion)"]
+        REPO["CoreRepository + DualAuditLogger"]
+        RTR --> SVC --> DOM
+        SVC --> REPO
+    end
+    ENG <-- "POST /sync/push • GET /entities/propagacion" --> RTR

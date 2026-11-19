@@ -1,0 +1,17 @@
+flowchart TB
+    subgraph FE["frontend/src (Módulo 4: Dashboard)"]
+        D_PG["pages/DashboardPage.tsx"]
+        D_TR["components/LotTraceModal.tsx"]
+        D_ST["domain/dashboardStats.ts\n(computeLocalDashboardSummary)"]
+        D_HK["db/useLocalData.ts"]
+        D_EX["utils/exporters.ts (Lazy Excel/PDF/TXT)"]
+        D_PG --> D_ST & D_HK & D_EX
+        D_PG --> D_TR
+    end
+    subgraph BE["backend/src/sajona_core (Endpoints Analíticos)"]
+        B_DR["presentation/routers.py\n(/dashboard/summary, /lotes/{id}/trazabilidad)"]
+        B_SV["application/produccion_service.py\n(get_dashboard_summary, _compose_dashboard_metrics)"]
+        B_RP["infrastructure/repositories.py\n(get_lote_traceability)"]
+        B_DR --> B_SV --> B_RP
+    end
+    D_HK <-- "Pull Incremental + Traza REST" --> B_DR

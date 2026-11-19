@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor Op as Operario Móvil
+    participant UI as PropagacionPage
+    participant IDB as Dexie + Outbox
+    participant SW as Workbox SW
+    participant API as FastAPI SyncService
+    participant DB as PostgreSQL 16
+
+    Op->>UI: Crea lote LOT-2026-034 sin señal
+    UI->>UI: Valida RN-01 (proveedor, cantidades)
+    UI->>IDB: Tx atómica: put(propagacion) + add(outbox_mutations)
+    IDB-->>UI: Muestra tarjeta con badge "Pendiente"
+    Note over UI,API: Dispositivo recupera señal 4G / Wi-Fi
+    SW-->>UI: Navegador dispara evento online
+    UI->>API: POST /api/v1/sync/push (client_mutation_id, base_version=0)
+    API->>DB: Verifica processed_mutations
+    DB-->>API: Nueva mutación -> aplica rules.py e inserta
+    API->>DB: Registra audit_logs + client_mutation_id
+    API-->>IDB: status="applied", version=1 -> marca "Sincronizado"

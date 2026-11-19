@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph FE["Cliente PWA (Módulo Bolsa)"]
+        direction TB
+        UI["TransplanteBolsaPage.tsx (Modal Bolsa + Modal CV-05)"]
+        CALC["calculations.ts (calcularSupervivenciaBolsa + calcularVivasEnBolsa)"]
+        ENG["syncEngine.ts (Transplante + Lote Madre + Revisión)"]
+        IDB[("Dexie IndexedDB: transplante_bolsa, revisiones_bolsa, propagacion")]
+        UI --> CALC & ENG
+        ENG --> IDB
+    end
+    subgraph BE["Servidor Backend FastAPI"]
+        direction TB
+        RTR["routers.py"]
+        SVC["ProduccionService (_rules_transplante_bolsa + _promote_transplante)"]
+        DOM["domain/rules.py (calcular_transplante_bolsa, validar_revision_bolsa)"]
+        REPO["CoreRepository + AuditLogger"]
+        RTR --> SVC --> DOM
+        SVC --> REPO
+    end
+    ENG <-- "POST /entities/transplante_bolsa • /revisiones_bolsa" --> RTR

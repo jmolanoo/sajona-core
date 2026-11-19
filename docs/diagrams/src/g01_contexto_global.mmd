@@ -1,0 +1,29 @@
+flowchart TB
+    subgraph ACT["Actores RBAC (SAJONA ADE)"]
+        direction LR
+        OP["Operario de Campo"]
+        JF["Jefe de Proyecto"]
+        CO["Consulta / Auditoría"]
+        AD["Administrador"]
+    end
+
+    subgraph PWA["Cliente PWA Mobile-First / Offline-First"]
+        direction TB
+        UI["React 18 + Tailwind CSS\n(Dashboard, Propagación, Planta Madre, Transplante Bolsa)"]
+        SW["Workbox Service Worker (sw.ts)\nApp Shell Offline + Navigation Fallback"]
+        IDB["IndexedDB Dexie 4 (sajona_core_db)\n9 Tablas + Outbox Causal + Exportadores"]
+        UI --> IDB
+        UI -.-> SW
+    end
+
+    subgraph VPS["Infraestructura VPS Ubuntu 24.04 (Docker Compose)"]
+        direction TB
+        TUN["sajona-core-tunnel\n(cloudflared TLS 1.3)"]
+        NGX["sajona-core-proxy\n(Nginx 1.27.3 no-root)"]
+        API["sajona-core-backend\n(FastAPI 4 Capas + Auditoría JSONL)"]
+        PG[("sajona-core-db\nPostgreSQL 16.6")]
+        TUN --> NGX --> API --> PG
+    end
+
+    OP & JF & CO & AD --> UI
+    UI <-- "HTTPS REST /api/v1/* + Sync" --> TUN

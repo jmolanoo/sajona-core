@@ -1,0 +1,7 @@
+flowchart TB
+    DEV["Teléfono / PC Usuario\nApp Shell SW + Cómputo Dashboard local en IndexedDB"]
+    TUN["Contenedor sajona-core-tunnel (cloudflared TLS 1.3)"]
+    PRX["Contenedor sajona-core-proxy (Nginx 1.27.3 no-root :8080)"]
+    API["Contenedor sajona-core-backend (/api/v1/dashboard/summary + Pull Delta)"]
+    DB[("Contenedor sajona-core-db (PostgreSQL 16.6)\nConsultas agregadas read-only")]
+    DEV <-->|"HTTPS TLS 1.3"| TUN <--> PRX <--> API <--> DB

@@ -1,0 +1,12 @@
+flowchart TD
+    INI(["Inicio: Transplante a Bolsa"]) --> S1["Seleccionar Lote Origen y consultar Saldo Disponible"]
+    S1 --> V1{"¿0 < procesada <= saldo y\n0 <= buenas <= procesada?"}
+    V1 -- "No" --> ERR["Rechazar por conservación de balance (RN-02)"]
+    V1 -- "Sí" --> CAL["Calcular malas = procesada - buenas\n%Buenas y %Malas"]
+    CAL --> A1{"¿%Malas > 20.00%?"}
+    A1 -- "Sí" --> ALM["Activar bandera alerta_merma = True"]
+    A1 -- "No" --> OKM["Supervivencia normal"]
+    ALM & OKM --> T1{"¿Tipo Lote == PLANTA_MADRE?"}
+    T1 -- "Sí" --> PM["Generar LotePlantaMadre + Unidades #1..N"]
+    T1 -- "No" --> COM["Registrar lote en bolsa comercial"]
+    PM & COM --> REV["Habilitar Revisiones Periódicas (CV-05)\ny actualizar estado de Propagación"]

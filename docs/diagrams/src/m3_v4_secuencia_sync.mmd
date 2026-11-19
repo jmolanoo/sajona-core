@@ -1,0 +1,17 @@
+sequenceDiagram
+    actor Op as Operario Móvil
+    participant UI as TransplanteBolsaPage
+    participant IDB as Dexie + Outbox
+    participant API as FastAPI SyncService
+    participant DB as PostgreSQL 16
+
+    Op->>UI: Trasplanta 50 uds (35 buenas, 15 malas) como PLANTA_MADRE
+    UI->>UI: calcularSupervivenciaBolsa() -> alerta_merma=true (30%)
+    UI->>IDB: seq=1 CREATE transplante_bolsa (base_v=0)
+    UI->>IDB: seq=2 UPDATE propagacion estado_lote
+    UI->>IDB: seq=3 CREATE lotes_planta_madre + unidades
+    Note over UI,API: Reconexión a red / reintento ante fallo HTTP
+    IDB->>API: POST /api/v1/sync/push (cola causal + client_mutation_id)
+    API->>DB: Valida saldo disponible y promueve cadena completa
+    DB-->>API: Persistido + AuditLogs
+    API-->>IDB: status="applied" (o "duplicate" en reintento)

@@ -1,0 +1,26 @@
+erDiagram
+    FUNCIONARIOS ||--o| USUARIOS : asignado_a
+    USUARIOS ||--o{ REFRESH_TOKENS : posee
+    USUARIOS ||--o{ PASSWORD_RESET_TOKENS : solicita
+    VARIEDADES ||--o{ PROPAGACIONES : clasifica
+    UBICACIONES ||--o{ PROPAGACIONES : aloja
+    FUNCIONARIOS ||--o{ PROPAGACIONES : responsable
+    PROPAGACIONES ||--o{ TRANSPLANTES_BOLSA : abastece
+    UBICACIONES ||--o{ TRANSPLANTES_BOLSA : ubica
+    TRANSPLANTES_BOLSA ||--o{ REVISIONES_BOLSA : evalua_cv05
+    PROPAGACIONES ||--o{ LOTES_PLANTA_MADRE : origina
+    TRANSPLANTES_BOLSA ||--o| LOTES_PLANTA_MADRE : promueve
+    LOTES_PLANTA_MADRE ||--|{ UNIDADES_PLANTA_MADRE : contiene
+    LOTES_PLANTA_MADRE ||--o{ EXTRACCIONES_MADRE : registra_cv09
+    EXTRACCIONES_MADRE ||--o{ PROPAGACIONES : deriva_lote_hijo
+    PROCESSED_MUTATIONS {
+        string client_mutation_id PK
+        string entity_type
+        string operation
+    }
+    AUDIT_LOGS {
+        string id PK
+        string correlation_id
+        string entity_type
+        string action
+    }

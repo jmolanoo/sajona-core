@@ -1,0 +1,19 @@
+sequenceDiagram
+    actor Op as Jefe / Operario
+    participant UI as PlantaMadrePage (CV-09)
+    participant IDB as Dexie + Outbox
+    participant API as FastAPI SyncService
+    participant SVC as ProduccionService
+    participant DB as PostgreSQL 16
+
+    Op->>UI: Registra extracción 37 esq. / 60 sem. + deriva lote hijo
+    UI->>UI: calcularTotalesExtraccion()
+    UI->>IDB: 1. CREATE extracciones_madre (seq=1)
+    UI->>IDB: 2. UPDATE unidades_planta_madre (seq=2..N)
+    UI->>IDB: 3. CREATE propagacion hija (seq=N+1)
+    Note over UI,API: Al existir conexión o reconexión:
+    IDB->>API: POST /api/v1/sync/push en orden estricto seq
+    API->>SVC: Valida extracciones_madre -> unidades -> propagación hija
+    SVC->>DB: Persiste cadena genética completa con FK
+    DB-->>API: Commit + AuditLogs
+    API-->>IDB: Todas las mutaciones status="applied"

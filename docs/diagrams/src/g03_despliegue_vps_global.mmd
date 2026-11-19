@@ -1,0 +1,29 @@
+flowchart TB
+    CLI["Smartphone / Navegador PWA\n(Workbox SW + Dexie IndexedDB)"]
+    CF["Cloudflare Edge (Terminación HTTPS TLS 1.3)"]
+
+    subgraph VPS["VPS Ubuntu 24.04 x86_64 • Docker Compose (sajona-core)"]
+        direction TB
+        subgraph FNET["Red sajona-core-frontend-net (bridge)"]
+            direction TB
+            TUN["sajona-core-tunnel\ncloudflare/cloudflared:2026.11.1 (nonroot)"]
+            PRX["sajona-core-proxy\nnginx:1.27.3-alpine (127.0.0.1:8089 -> 8080)"]
+            API["sajona-core-backend\npython:3.12.7-slim (UID 1001 :8000)"]
+            TUN --> PRX --> API
+        end
+        subgraph BNET["Red sajona-core-backend-net (internal: true)"]
+            direction TB
+            DB[("sajona-core-db\npostgres:16.6-alpine")]
+            BKP["sajona-core-backup\npg_dump diario + restore_test.sh"]
+            VOL_PG[("Vol. sajona_core_pgdata")]
+            VOL_LOG[("Vol. sajona_core_audit_logs")]
+            VOL_BK[("Vol. sajona_core_backups")]
+            BKP --> DB
+            DB --> VOL_PG
+            BKP --> VOL_BK
+        end
+        API --> DB
+        API --> VOL_LOG
+    end
+
+    CLI <-->|"HTTPS TLS 1.3"| CF <-->|"Túnel Saliente Cifrado"| TUN

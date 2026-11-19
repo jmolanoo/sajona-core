@@ -1,0 +1,14 @@
+flowchart TD
+    INI(["Inicio: Nuevo / Editar Lote"]) --> F1["Ingresar Id Lote, Fecha, Variedad,\nTipo (Esqueje/Semilla/In vitro) y Cantidad"]
+    F1 --> D1{"¿Incorporación\nCOMPRADA?"}
+    D1 -- "Sí" --> D2{"¿Proveedor\ningresado?"}
+    D2 -- "No" --> ERR1["Rechazar: Proveedor obligatorio"]
+    D2 -- "Sí" --> D3
+    D1 -- "No (PROPIA)" --> D3{"¿bajas < sembrado y\nmadres_est <= sembrado?"}
+    D3 -- "No" --> ERR2["Rechazar por regla RN-01"]
+    D3 -- "Sí" --> CALC["Calcular saldo_disponible =\ncantidad - bajas - trasplantado_bolsa"]
+    CALC --> D4{"¿saldo_disponible?"}
+    D4 -- "== 0" --> ESTF["Estado = FINALIZADO"]
+    D4 -- "> 0 con trasplantes" --> ESTE["Estado = EN_TRANSPLANTE"]
+    D4 -- "sin trasplantes" --> ESTS["Estado = SIEMBRA"]
+    ESTF & ESTE & ESTS --> SAVE["Persistir en IndexedDB + Outbox / PostgreSQL"]

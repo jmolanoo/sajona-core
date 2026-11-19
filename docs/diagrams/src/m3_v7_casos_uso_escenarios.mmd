@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph RBAC["Casos de Uso RBAC — Módulo 3: Transplante Bolsa y CV-05"]
+        direction TB
+        subgraph G1["Operario / Jefe / Admin (Operación en Bolsa)"]
+            direction LR
+            M3U1(["UC-M3-01 Registrar Transplante desde Saldo"])
+            M3U3(["UC-M3-03 Promover a Planta Madre"])
+            M3U4(["UC-M3-04 Registrar Revisión Periódica CV-05"])
+        end
+        subgraph G2["Todos los Roles (incluido Consulta)"]
+            direction LR
+            M3U2(["UC-M3-02 Visualizar Alerta Merma >20%"])
+            M3U5(["UC-M3-05 Exportar Consolidado Supervivencia"])
+        end
+    end
+    subgraph ESC["Escenario +1 Crítico — Alerta de Merma Sin Señal"]
+        direction LR
+        S1["1. Transplante 50 uds\n(35 buenas / 30% merma)"] --> S2["2. Alerta >20%\ny Saldo Prop. = 0"] --> S3["3. Promueve Madre\ny Unidades #1..N"] --> S4["4. Sync Causal y\nRevisión CV-05"]
+    end
+    RBAC --> ESC

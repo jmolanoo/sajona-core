@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sajona-core-backend"
+version = "1.0.0"
+description = "Backend REST Offline-First para SAJONA Núcleo (Propagación, Planta Madre, Transplante a Bolsa y Dashboard)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.32.1",
+    "sqlalchemy[asyncio]==2.0.36",
+    "asyncpg==0.30.0",
+    "psycopg[binary]==3.2.3",
+    "alembic==1.14.0",
+    "pydantic[email]==2.10.3",
+    "pydantic-settings==2.7.0",
+    "pwdlib[argon2]==0.2.1",
+    "pyjwt==2.10.1",
+    "python-multipart==0.0.20",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==6.0.0",
+    "httpx==0.28.1",
+    "ruff==0.8.3",
+    "mypy==1.13.0",
+    "import-linter==2.1",
+    "aiosqlite==0.20.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "C901"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["sajona_core"]
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = ["sqlalchemy.*", "alembic.*", "pwdlib.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["src"]
+
+[tool.coverage.run]
+concurrency = ["greenlet", "thread"]
+
+[tool.importlinter]
+root_package = "sajona_core"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "Arquitectura en Capas Estricta SAJONA Core"
+type = "layers"
+layers = [
+    "sajona_core.presentation",
+    "sajona_core.infrastructure",
+    "sajona_core.application",
+    "sajona_core.domain",
+]
+ignore_imports = [
+    "sajona_core.infrastructure.* -> sajona_core.config",
+    "sajona_core.presentation.* -> sajona_core.config",
+    "sajona_core.main -> sajona_core.config",
+    "sajona_core.main -> sajona_core.presentation.*",
+    "sajona_core.main -> sajona_core.infrastructure.*",
+]
+
+[[tool.importlinter.contracts]]
+name = "Dominio Puro Sin Dependencias Externas"
+type = "forbidden"
+source_modules = ["sajona_core.domain"]
+forbidden_modules = [
+    "fastapi",
+    "sqlalchemy",
+    "pydantic",
+    "pwdlib",
+    "jwt",
+    "httpx",
+]

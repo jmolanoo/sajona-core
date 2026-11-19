@@ -1,0 +1,17 @@
+flowchart TB
+    subgraph FE["frontend/src (Módulo 3)"]
+        M3_PG["pages/TransplanteBolsaPage.tsx"]
+        M3_DM["domain/calculations.ts\n(calcularSupervivenciaBolsa, calcularVivasEnBolsa)"]
+        M3_DB["db/schema.ts + db/syncEngine.ts"]
+        M3_PG --> M3_DM & M3_DB
+    end
+    subgraph BE["backend/src/sajona_core (Módulo 3)"]
+        B3_RT["presentation/routers.py"]
+        B3_AP["application/produccion_service.py\n(_rules_transplante_bolsa, _rules_revision_bolsa)"]
+        B3_DO["domain/rules.py\n(calcular_transplante_bolsa, validar_revision_bolsa)"]
+        B3_IN["infrastructure/models.py\n(TransplanteBolsaModel, RevisionBolsaModel)"]
+        B3_RT --> B3_AP --> B3_DO
+        B3_RT --> B3_IN
+        B3_IN --> B3_DO
+    end
+    M3_DB <-- "/api/v1/entities/transplante_bolsa y revisiones_bolsa" --> B3_RT

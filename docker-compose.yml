@@ -1,0 +1,122 @@
+name: sajona-core
+
+services:
+  sajona-core-db:
+    image: postgres:16.6-alpine
+    container_name: sajona-core-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sajona_core}
+      POSTGRES_USER: ${POSTGRES_USER:-sajona_core}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - sajona_core_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sajona_core} -d ${POSTGRES_DB:-sajona_core}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    networks:
+      - sajona-core-backend-net
+
+  sajona-core-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: sajona-core-backend:1.0.0
+    container_name: sajona-core-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - sajona_core_audit_logs:/app/audit_logs
+    depends_on:
+      sajona-core-db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    networks:
+      - sajona-core-backend-net
+      - sajona-core-frontend-net
+
+  sajona-core-backup:
+    build:
+      context: .
+      dockerfile: docker/backup/Dockerfile
+    image: sajona-core-backup:1.0.0
+    container_name: sajona-core-backup
+    restart: unless-stopped
+    environment:
+      PGHOST: sajona-core-db
+      PGUSER: ${POSTGRES_USER:-sajona_core}
+      PGDATABASE: ${POSTGRES_DB:-sajona_core}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - sajona_core_backups:/backups
+    depends_on:
+      sajona-core-db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+    networks:
+      - sajona-core-backend-net
+
+  sajona-core-proxy:
+    build:
+      context: .
+      dockerfile: docker/proxy/Dockerfile
+    image: sajona-core-proxy:1.0.0
+    container_name: sajona-core-proxy
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8089:8080"
+    depends_on:
+      sajona-core-backend:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: 256M
+    networks:
+      - sajona-core-frontend-net
+
+  sajona-core-tunnel:
+    image: cloudflare/cloudflared:2026.11.1
+    container_name: sajona-core-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate --url http://sajona-core-proxy:8080
+    depends_on:
+      sajona-core-proxy:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+    networks:
+      - sajona-core-frontend-net
+
+volumes:
+  sajona_core_pgdata:
+  sajona_core_audit_logs:
+  sajona_core_backups:
+
+networks:
+  sajona-core-frontend-net:
+    driver: bridge
+  sajona-core-backend-net:
+    driver: bridge
+    internal: true

@@ -1,0 +1,36 @@
+classDiagram
+    class LotePlantaMadre {
+        +str id
+        +str lote_id
+        +str transplante_bolsa_id
+        +date fecha_establecimiento
+        +int cantidad_madres_inicial
+        +int cantidad_madres_activas
+    }
+    class UnidadPlantaMadre {
+        +str id
+        +str lote_madre_id
+        +int numero_planta
+        +str codigo_planta
+        +EstadoPlantaMadre estado_planta
+        +int total_esquejes
+        +int total_semillas
+        +date ultima_extraccion
+    }
+    class ExtraccionMadre {
+        +str id
+        +str lote_madre_id
+        +date fecha_transplante_ref
+        +date fecha_extraccion
+        +list detalle_plantas
+        +int total_esquejes
+        +int total_semillas
+        +str lote_hijo_codigo
+    }
+    class RulesPlantaMadre {
+        <<domain service>>
+        +validar_extraccion_madre() TotalesExtraccionMadre
+    }
+    LotePlantaMadre "1" *-- "1..*" UnidadPlantaMadre : agrupa
+    LotePlantaMadre "1" --> "0..*" ExtraccionMadre : produce
+    ExtraccionMadre ..> RulesPlantaMadre : valida CV-09

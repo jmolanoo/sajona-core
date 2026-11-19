@@ -1,0 +1,28 @@
+classDiagram
+    class DashboardSummary {
+        +dict kpi_propagacion
+        +dict kpi_transplante_bolsa
+        +dict kpi_planta_madre
+        +list alertas_merma
+        +list supervivencia_por_transplante
+        +list distribucion_por_variedad
+    }
+    class DashboardFilter {
+        +date fechaInicio
+        +date fechaFin
+        +str variedadId
+        +str tipoPropagacion
+    }
+    class LocalAnalyticsEngine {
+        <<client analytics>>
+        +computeLocalDashboardSummary() DashboardSummary
+    }
+    class ServerAnalyticsService {
+        <<application service>>
+        +get_dashboard_summary() dict
+        +get_traceability() dict
+    }
+    DashboardFilter --> LocalAnalyticsEngine : filtra en IndexedDB
+    DashboardFilter --> ServerAnalyticsService : consulta REST /dashboard
+    LocalAnalyticsEngine --> DashboardSummary : produce
+    ServerAnalyticsService --> DashboardSummary : produce

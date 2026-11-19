@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph RBAC["Casos de Uso RBAC — Módulo 4: Dashboard Analítico"]
+        direction TB
+        subgraph G1["Todos los Roles (Operación Offline-First)"]
+            direction LR
+            M4U1(["UC-M4-01 Visualizar KPIs de Módulos 1–3"])
+            M4U3(["UC-M4-03 Embudo SVG y Alertas >20%"])
+            M4U4(["UC-M4-04 Explorar Trazabilidad 360°"])
+        end
+        subgraph G2["Jefe / Consulta / Admin (Reportes)"]
+            direction LR
+            M4U2(["UC-M4-02 Filtrar por Fechas y Variedad"])
+            M4U5(["UC-M4-05 Exportar Consolidado Offline"])
+        end
+    end
+    subgraph ESC["Escenario +1 Crítico — Analítica Desconectada"]
+        direction LR
+        S1["1. Cierre App\nSin Conexión"] --> S2["2. Reapertura PWA\nApp Shell SW"] --> S3["3. dashboardStats.ts\nRecalcula desde IndexedDB"] --> S4["4. Descarga Excel/PDF\n100% Local"]
+    end
+    RBAC --> ESC

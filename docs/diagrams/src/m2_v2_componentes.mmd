@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph FE["Cliente PWA (Módulo Planta Madre)"]
+        direction TB
+        UI["PlantaMadrePage.tsx (Bloques, Unidades y Modal CV-09)"]
+        CALC["calculations.ts (calcularTotalesExtraccion)"]
+        ENG["syncEngine.ts (Cola Causal: Extracción + Unidades + Hijo)"]
+        IDB[("Dexie IndexedDB: lotes_planta_madre, unidades, extracciones")]
+        UI --> CALC & ENG
+        ENG --> IDB
+    end
+    subgraph BE["Servidor Backend FastAPI"]
+        direction TB
+        RTR["routers.py"]
+        SVC["ProduccionService (_update_unidades + _derive_child_lot)"]
+        DOM["domain/rules.py (validar_extraccion_madre)"]
+        REPO["CoreRepository + AuditLogger"]
+        RTR --> SVC --> DOM
+        SVC --> REPO
+    end
+    ENG <-- "POST /sync/push • POST /entities/extracciones_madre" --> RTR

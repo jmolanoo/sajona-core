@@ -1,0 +1,17 @@
+flowchart TB
+    subgraph FE["Cliente PWA (Analítica Offline-First)"]
+        direction TB
+        UI["DashboardPage.tsx (KPIs, Embudo SVG, Supervivencia, Alertas)"]
+        STAT["domain/dashboardStats.ts (computeLocalDashboardSummary)"]
+        TRACE["components/LotTraceModal.tsx (Trazabilidad Genética 360°)"]
+        EXP["utils/exporters.ts (Excel, TXT, PDF Offline)"]
+        HOOKS["db/useLocalData.ts (useEntityRecords sobre 7 tablas)"]
+        IDB[("Dexie IndexedDB (sajona_core_db)")]
+        UI --> STAT & TRACE & EXP
+        STAT --> HOOKS --> IDB
+    end
+    subgraph BE["Servidor Backend FastAPI"]
+        direction TB
+        API["routers.py (/dashboard/summary, /lotes/{id}/trazabilidad)"]
+    end
+    HOOKS -. "Pull Delta / Traza REST" .-> API

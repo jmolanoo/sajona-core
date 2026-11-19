@@ -1,0 +1,34 @@
+classDiagram
+    class TransplanteBolsa {
+        +str id
+        +str lote_id
+        +str codigo_transplante
+        +date fecha_transplante
+        +int cantidad_procesada
+        +int cantidad_buenas
+        +int cantidad_malas
+        +Decimal porcentaje_buenas
+        +Decimal porcentaje_malas
+        +bool alerta_merma
+        +TipoLoteTransplante tipo_lote
+        +str capacidad_bolsa
+    }
+    class RevisionBolsa {
+        +str id
+        +str transplante_id
+        +date fecha_revision
+        +FaseBolsa fase
+        +int unidades_revisadas
+        +int contador_buenos
+        +int contador_malos
+        +str tipo_complicacion
+        +EstadoSanitario estado_sanitario
+    }
+    class RulesBolsa {
+        <<domain service>>
+        +calcular_transplante_bolsa() ResultadoSupervivenciaBolsa
+        +validar_revision_bolsa() int
+    }
+    TransplanteBolsa "1" --> "0..*" RevisionBolsa : monitorea_cv05
+    TransplanteBolsa ..> RulesBolsa : valida RN-02
+    RevisionBolsa ..> RulesBolsa : valida RN-04

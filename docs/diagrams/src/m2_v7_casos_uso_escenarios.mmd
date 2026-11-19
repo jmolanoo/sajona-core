@@ -1,0 +1,20 @@
+flowchart TB
+    subgraph RBAC["Casos de Uso RBAC — Módulo 2: Planta Madre"]
+        direction TB
+        subgraph G1["Operario / Jefe (Extracciones y Unidades)"]
+            direction LR
+            M2U2(["UC-M2-02 Estado Unidad #N (Activa/Reposo/Descartada)"])
+            M2U3(["UC-M2-03 Matriz Extracción CV-09"])
+            M2U4(["UC-M2-04 Derivar Lote Hijo a Propagación"])
+        end
+        subgraph G2["Jefe / Admin y Consulta (Lectura)"]
+            direction LR
+            M2U1(["UC-M2-01 Registrar Bloque Madre"])
+            M2U5(["UC-M2-05 Historial Productivo y Exportación"])
+        end
+    end
+    subgraph ESC["Escenario +1 Crítico — Extracción CV-09 Offline"]
+        direction LR
+        S1["1. Matriz #15..18\nen IndexedDB"] --> S2["2. Actualiza Totales\ny Crea Lote Hijo"] --> S3["3. Cola Causal seq\nSync Push Ordenado"] --> S4["4. Auditoría Padre–Hijo\nen PostgreSQL 16"]
+    end
+    RBAC --> ESC

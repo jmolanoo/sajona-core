@@ -1,0 +1,17 @@
+sequenceDiagram
+    actor User as Jefe / Consulta
+    participant UI as DashboardPage + LotTraceModal
+    participant STAT as dashboardStats.ts
+    participant IDB as Dexie IndexedDB
+    participant Sync as syncEngine.ts
+    participant API as FastAPI Backend
+
+    User->>UI: Abre PWA (con o sin conexión a Internet)
+    UI->>IDB: useEntityRecords() lee 7 colecciones locales
+    IDB-->>STAT: Entrega registros sincronizados + pendientes locales
+    STAT-->>UI: Renderiza KPIs, Embudo SVG y Alertas < 16 ms
+    opt Hay conectividad disponible
+        Sync->>API: GET /api/v1/sync/pull?since=cursor
+        API-->>IDB: Actualiza deltas en tablas locales
+        IDB-->>UI: suscribeSync() refresca Dashboard automáticamente
+    end

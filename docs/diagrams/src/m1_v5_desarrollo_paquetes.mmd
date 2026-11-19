@@ -1,0 +1,21 @@
+flowchart TB
+    subgraph FE["frontend/src (Módulo 1)"]
+        F_PG["pages/PropagacionPage.tsx"]
+        F_DM["domain/calculations.ts\ndomain/types.ts"]
+        F_DB["db/schema.ts + db/syncEngine.ts"]
+        F_UT["utils/exporters.ts"]
+        F_PG --> F_DM
+        F_PG --> F_DB
+        F_PG --> F_UT
+    end
+    subgraph BE["backend/src/sajona_core (Módulo 1)"]
+        B_PR["presentation/routers.py"]
+        B_AP["application/produccion_service.py\napplication/dto.py (PropagacionPayload)"]
+        B_DO["domain/entities.py (Propagacion)\ndomain/rules.py (validar_propagacion)"]
+        B_IN["infrastructure/models.py (PropagacionModel)\ninfrastructure/repositories.py"]
+        B_PR --> B_AP --> B_DO
+        B_PR --> B_IN
+        B_IN --> B_AP
+        B_IN --> B_DO
+    end
+    F_DB <-- "/api/v1/entities/propagacion + /sync" --> B_PR

@@ -1,0 +1,23 @@
+flowchart TB
+    subgraph RBAC["Casos de Uso RBAC — Módulo 1: Propagación"]
+        direction TB
+        subgraph G1["Operario / Jefe / Admin (Lectura y Escritura Offline)"]
+            direction LR
+            U1(["UC-M1-01 Registrar Siembra Propia/Comprada"])
+            U2(["UC-M1-03 Actualizar Bajas / Atributos"])
+            U3(["UC-M1-04 Enviar Saldo a Bolsa"])
+        end
+        subgraph G2["Todos los Roles (incluido Consulta)"]
+            direction LR
+            U4(["UC-M1-02 Consultar Saldo Disponible"])
+            U5(["UC-M1-05 Exportar Excel / TXT / PDF"])
+        end
+        subgraph G3["Solo Jefe de Proyecto y Admin"]
+            U6(["UC-M1-06 Eliminar Lote sin Trasplantes"])
+        end
+    end
+    subgraph ESC["Escenario +1 Crítico — Propagación Sin Red"]
+        direction LR
+        S1["1. Siembra Offline\n(IndexedDB + Outbox)"] --> S2["2. Cierre y Reapertura\nApp desde SW"] --> S3["3. Reconexión 4G\nPush Idempotente"] --> S4["4. Conflicto v1/v2\nen SyncCenterModal"]
+    end
+    RBAC --> ESC
